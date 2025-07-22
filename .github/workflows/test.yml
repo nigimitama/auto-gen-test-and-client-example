@@ -1,0 +1,25 @@
+on: [push]
+
+jobs:
+  example:
+    runs-on: ubuntu-22.04
+    name: Test
+    steps:
+      # Gets a copy of the source code in your repository before running API tests
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v6
+
+      # Installs project's dependencies
+      - run: uv pip install --system -r src/requirements.txt
+
+      # Start the API in the background
+      - run: fastapi dev src/main.py &
+
+      - name: Default test
+        uses: schemathesis/action@v2
+        with:
+          schema: "http://127.0.0.1:8000/openapi.json"

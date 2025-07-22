@@ -1,0 +1,9 @@
+[project]
+name = "fastapi-lambda-example"
+version = "0.0.1"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = [
+    "tests",
+]

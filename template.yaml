@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  STAGE:
+    Type: String
+    AllowedValues:
+      - dev
+      - prd
+    Default: dev
+
+Resources:
+  FastAPIGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref STAGE
+      EndpointConfiguration:
+        Type: REGIONAL
+      # （任意）CORSを設定する場合
+      Cors:
+        AllowOrigin: "'*'"
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+
+  # FastAPIを動かすLambda
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-FastAPI
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        # ルートパス用のイベント
+        RestApiRootPath:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY # すべてのメソッドを受け付ける
+            RestApiId: !Ref FastAPIGateway
+        # ルートパス以外のパス用のイベント
+        RestApiAllChildPaths:
+          Type: Api
+          Properties:
+            Path: /{proxy+} # {proxy+} はワイルドカードを意味する。ルートパス以外のすべてのパスはこちらで受け取る
+            Method: ANY # すべてのメソッドを受け付ける
+            RestApiId: !Ref FastAPIGateway
+
+      Timeout: 30
+      MemorySize: 1024
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./src
+      DockerTag: python3.12-v1
+
+  FastApiFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${FastApiFunction}
+      RetentionInDays: 14
+
+Outputs:
+  ApiEndpoint:
+    Description: "API endpoint URL"
+    Value: !Sub "https://${FastAPIGateway}.execute-api.${AWS::Region}.amazonaws.com/${STAGE}/"

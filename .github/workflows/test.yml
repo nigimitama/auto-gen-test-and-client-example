@@ -17,7 +17,7 @@ jobs:
       - run: uv pip install --system -r src/requirements.txt
 
       # Start the API in the background
-      - run: fastapi dev src/main.py &
+      - run: uvicorn src.main:app &
 
       - name: Default test
         uses: schemathesis/action@v2

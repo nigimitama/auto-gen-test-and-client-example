@@ -16,10 +16,10 @@ jobs:
       # Installs project's dependencies
       - run: uv pip install --system -r src/requirements.txt
 
-      # Start the API in the background
-      - run: uvicorn src.main:app &
+      - name: Start the API in the background
+        run: uvicorn src.main:app &
 
-      - name: Default test
+      - name: Property-Based Testing with Schemathesis
         uses: schemathesis/action@v2
         with:
           schema: "http://127.0.0.1:8000/openapi.json"

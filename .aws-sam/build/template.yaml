@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  STAGE:
+    Type: String
+    AllowedValues:
+    - dev
+    - prd
+    Default: dev
+Resources:
+  FastAPIGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName:
+        Ref: STAGE
+      EndpointConfiguration:
+        Type: REGIONAL
+      Cors:
+        AllowOrigin: '''*'''
+        AllowMethods: '''GET,POST,OPTIONS'''
+        AllowHeaders: '''Content-Type,Authorization'''
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: ${AWS::StackName}-FastAPI
+      PackageType: Image
+      Architectures:
+      - x86_64
+      Events:
+        RestApiRootPath:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+            RestApiId:
+              Ref: FastAPIGateway
+        RestApiAllChildPaths:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId:
+              Ref: FastAPIGateway
+      Timeout: 30
+      MemorySize: 1024
+      ImageUri: fastapifunction:python3.12-v1
+    Metadata:
+      DockerContext: /mnt/c/Users/mitama/Documents/github-local/auto-gen-test-and-client-example/src
+      DockerTag: python3.12-v1
+      Dockerfile: Dockerfile
+      SamResourceId: FastApiFunction
+  FastApiFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${FastApiFunction}
+      RetentionInDays: 14
+Outputs:
+  ApiEndpoint:
+    Description: API endpoint URL
+    Value:
+      Fn::Sub: https://${FastAPIGateway}.execute-api.${AWS::Region}.amazonaws.com/${STAGE}/

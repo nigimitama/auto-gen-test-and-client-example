@@ -13,6 +13,8 @@ jobs:
 
       - uses: astral-sh/setup-uv@v6
 
+      - run: cd backend/
+
       # Installs project's dependencies
       - run: uv pip install --system -r src/requirements.txt
 

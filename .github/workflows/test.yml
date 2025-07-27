@@ -14,10 +14,14 @@ jobs:
       - uses: astral-sh/setup-uv@v6
 
       # Installs project's dependencies
-      - run: uv pip install --system -r src/requirements.txt
+      - run: |
+          cd backend/
+          uv pip install --system -r src/requirements.txt
 
       - name: Start the API in the background
-        run: uvicorn src.main:app &
+        run: |
+          cd backend/
+          uvicorn src.main:app &
 
       - name: Property-Based Testing with Schemathesis
         uses: schemathesis/action@v2

@@ -24,4 +24,20 @@
 
 TypeScript で SPA を書くこととする。
 
-Hey API で TypeScript の型定義とクライアントコードを生成する
+~~Hey API で TypeScript の型定義とクライアントコードを生成する~~
+
+OpenAPI Typescript を使うことにした
+
+[swr-openapi | OpenAPI TypeScript](https://openapi-ts.dev/swr-openapi/)
+
+setup
+
+```sh
+npm i swr-openapi openapi-fetch
+npm i -D openapi-typescript typescript
+```
+
+```sh
+cd ./frontend
+npx openapi-typescript ./openapi.json -o ./src/lib/api/v1.d.ts
+```

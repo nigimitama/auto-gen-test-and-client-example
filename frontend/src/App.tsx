@@ -1,20 +1,29 @@
 import "./App.css"
-import { rootGet } from "./client"
-import { useEffect, useState } from "react"
+import { useQuery } from "./lib/api/client"
 
 function App() {
-  const [value, setValue] = useState<string | undefined>()
-  useEffect(() => {
-    rootGet().then(({ data }) => {
-      setValue(data)
-    })
-  }, [])
-
   return (
     <>
-      <h1>{value}</h1>
+      <h1>Sample App</h1>
+
+      <Geeting />
     </>
   )
+}
+
+function Geeting() {
+  const { data, error, isLoading, isValidating, mutate } = useQuery("/")
+  console.log({ data, error, isLoading, isValidating, mutate })
+
+  if (isLoading) {
+    return <p>読み込み中...</p>
+  }
+
+  if (error) {
+    return <p>エラーが発生しました: {error.message}</p>
+  }
+
+  return <p>{data}</p>
 }
 
 export default App

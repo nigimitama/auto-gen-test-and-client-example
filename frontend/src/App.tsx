@@ -6,12 +6,12 @@ function App() {
     <>
       <h1>Sample App</h1>
 
-      <Geeting />
+      <Greeting />
     </>
   )
 }
 
-function Geeting() {
+function Greeting() {
   const { data, error, isLoading, isValidating, mutate } = useQuery("/")
   console.log({ data, error, isLoading, isValidating, mutate })
 
